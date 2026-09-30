@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<section class="page-head reveal">
+  <div class="ph-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg></div>
+  <div><h1>History</h1><p>Every financial text and the LLM's answer, straight from the SQLite database. Search, filter, open or export.</p></div>
+</section>
+<section class="card reveal">
+  <div class="card-head">
+    <h2>Stored market-sentiment results</h2>
+    <a class="btn small glass" href="/api/results/export.csv">⬇ Export CSV</a>
+  </div>
+  <form id="filters" class="filters">
+    <input type="search" name="q" placeholder="Search text…">
+    <input type="text" name="company" placeholder="Company">
+    <select name="sentiment">
+      <option value="">All sentiments</option>
+      <option>Positive</option><option>Negative</option><option>Neutral</option>
+    </select>
+    <select name="text_type">
+      <option value="">All text types</option>
+      {% for key, label in text_types.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+    </select>
+    <select name="source">
+      <option value="">All sources</option>
+      <option value="web">Web</option><option value="api">API</option><option value="test">Test run</option>
+    </select>
+    <button class="btn primary small" type="submit">Filter</button>
+  </form>
+  <p class="muted small" id="history-count"></p>
+  <div id="history" class="table-wrap"></div>
+  <div class="pager">
+    <button class="btn small glass" id="prev">← Previous</button>
+    <button class="btn small glass" id="next">Next →</button>
+  </div>
+</section>
+
+<dialog id="detail">
+  <div id="detail-body"></div>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+{% endblock %}
+{% block scripts %}<script>SMSA.initHistoryPage();</script>{% endblock %}

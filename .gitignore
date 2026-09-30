@@ -1,0 +1,10 @@
+# secrets - API keys live only in the local .env file
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor / Office temporary files
+.DS_Store
+~$*

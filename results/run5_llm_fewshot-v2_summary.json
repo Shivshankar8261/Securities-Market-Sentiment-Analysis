@@ -1,0 +1,83 @@
+{
+  "run_id": 5,
+  "engine": "llm",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "prompt_version": "fewshot-v2",
+  "items": 60,
+  "correct": 60,
+  "accuracy": 1.0,
+  "macro_f1": 1.0,
+  "avg_latency_ms": 10584.716666666667,
+  "wall_time_s": 659.4,
+  "per_class": {
+    "Positive": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "Negative": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    },
+    "Neutral": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20.0
+    }
+  },
+  "per_text_type": {
+    "news": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "announcement": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "analyst": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "investor": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "social": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "Positive",
+      "Negative",
+      "Neutral"
+    ],
+    "matrix": [
+      [
+        20,
+        0,
+        0
+      ],
+      [
+        0,
+        20,
+        0
+      ],
+      [
+        0,
+        0,
+        20
+      ]
+    ]
+  }
+}

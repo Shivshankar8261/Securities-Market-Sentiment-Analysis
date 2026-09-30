@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Analyse{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy reveal">
+    <span class="eyebrow"><i class="pulse"></i> LLM-powered · prompt engineered · stored in SQLite</span>
+    <h1>Read the market's <span class="grad">mood</span><br>from any financial text.</h1>
+    <p>Paste financial news, a company announcement, analyst commentary, an investor comment or a
+       social-media post. The LLM judges what it means for the company — <b class="t-pos">Positive</b>,
+       <b class="t-neg">Negative</b> or <b class="t-neu">Neutral</b> — explains why, and every answer is saved.</p>
+    <div class="hero-actions">
+      <a href="#analyse" class="btn primary lg">Start analysing <span aria-hidden="true">→</span></a>
+      <a href="/test-results" class="btn glass lg">See test results</a>
+    </div>
+    <div class="hero-stats">
+      <div><strong id="hs-total">0</strong><span>texts analysed</span></div>
+      <div><strong id="hs-acc">—</strong><span>accuracy on test set</span></div>
+      <div><strong>4</strong><span>AI models</span></div>
+    </div>
+  </div>
+
+  <div class="hero-art reveal" aria-hidden="true">
+    <div class="chart-card">
+      <div class="chart-head">
+        <span class="chart-title">SMSA · Sentiment index</span>
+        <span class="chart-live"><i class="pulse"></i> LIVE</span>
+      </div>
+      <svg id="hero-chart" viewBox="0 0 420 220" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="float-card f1"><span class="fc-ico pos">▲</span><div><b>Positive</b><small>“record order book”</small></div><em>92%</em></div>
+    <div class="float-card f2"><span class="fc-ico neg">▼</span><div><b>Negative</b><small>“auditor resigns”</small></div><em>88%</em></div>
+    <div class="float-card f3"><span class="fc-ico neu">●</span><div><b>Neutral</b><small>“board meeting on 14 Nov”</small></div><em>81%</em></div>
+  </div>
+</section>
+
+<div class="grid-2" id="analyse">
+  <section class="card reveal">
+    <div class="card-title"><span class="step">1</span><h2>Financial text</h2></div>
+    <form id="analyze-form" novalidate>
+      <label for="text">Text <span class="muted" id="char-count">0 / 4000</span></label>
+      <textarea id="text" name="text" rows="8" maxlength="4000" required
+        placeholder="e.g. The M/s XYZ Limited reported strong quarterly earnings, with revenue increasing significantly. Analysts expressed optimism about future growth."></textarea>
+
+      <div class="row">
+        <div>
+          <label for="company">Company <span class="muted">(optional – detected by the LLM)</span></label>
+          <input id="company" name="company" type="text" maxlength="120" placeholder="e.g. XYZ Limited">
+        </div>
+        <div>
+          <label for="text_type">Text type</label>
+          <select id="text_type" name="text_type">
+            {% for key, label in text_types.items() %}
+              <option value="{{ key }}" {{ 'selected' if key == 'news' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="engine">Model</label>
+          <select id="engine" name="engine">
+            <option value="groq" {{ 'selected' if default_engine == 'groq' }} {{ 'disabled' if not groq_enabled }}>Groq · {{ groq_model.split('/')[-1] }} (cloud)</option>
+            <option value="gemini" {{ 'selected' if default_engine == 'gemini' }} {{ 'disabled' if not gemini_enabled }}>Gemini · {{ gemini_model }} (cloud)</option>
+            <option value="llm" {{ 'selected' if default_engine == 'llm' }}>Qwen2.5-1.5B (local)</option>
+            <option value="finbert" {{ 'selected' if default_engine == 'finbert' }}>FinBERT (local)</option>
+          </select>
+        </div>
+        <div>
+          <label for="prompt_version">Prompt strategy</label>
+          <select id="prompt_version" name="prompt_version">
+            <option value="fewshot-v2" selected>Few-shot with domain rules (v2)</option>
+            <option value="zeroshot-v1">Zero-shot (v1)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" id="submit-btn" class="btn primary shine">
+          <span class="btn-ico" aria-hidden="true">✦</span> Analyse sentiment</button>
+        <button type="button" id="sample-btn" class="btn glass">🎲 Load a sample</button>
+        <button type="reset" class="btn ghost">Clear</button>
+      </div>
+      <p id="form-error" class="error" hidden></p>
+    </form>
+  </section>
+
+  <section class="card reveal" id="result-card">
+    <div class="card-title"><span class="step">2</span><h2>LLM response</h2></div>
+    <div id="result-empty" class="empty">
+      <div class="radar" aria-hidden="true"><i></i><i></i><i></i><span></span></div>
+      <p>Your result appears here: the sentiment, a confidence gauge, the detected company,
+         the key factors and the model's reasoning.</p>
+    </div>
+    <div id="result-loading" class="empty" hidden>
+      <div class="scan" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <ol class="steps">
+        <li>Building the engineered prompt</li>
+        <li>Asking the LLM</li>
+        <li>Reading the JSON answer</li>
+        <li>Saving to the database</li>
+      </ol>
+    </div>
+    <div id="result" hidden>
+      <div class="verdict">
+        <div class="gauge-wrap">
+          <svg class="gauge" viewBox="0 0 200 122" aria-hidden="true">
+            <defs>
+              <linearGradient id="gauge-grad" x1="0" x2="1">
+                <stop offset="0" stop-color="#ff5d6c"/><stop offset=".5" stop-color="#94a3b8"/><stop offset="1" stop-color="#22c58b"/>
+              </linearGradient>
+            </defs>
+            <path d="M20 105 A80 80 0 0 1 180 105" class="g-track"/>
+            <path d="M20 105 A80 80 0 0 1 180 105" class="g-fill" stroke="url(#gauge-grad)"/>
+            <g id="g-needle" class="g-needle"><line x1="100" y1="105" x2="100" y2="40"/><circle cx="100" cy="105" r="7"/></g>
+            <text x="16" y="121" class="g-lab">−1</text><text x="184" y="121" class="g-lab" text-anchor="end">+1</text>
+          </svg>
+        </div>
+        <div class="verdict-text">
+          <span id="r-badge" class="badge big">—</span>
+          <div class="muted small">Market sentiment towards</div>
+          <div id="r-company" class="company">—</div>
+        </div>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric"><span class="muted">Confidence</span><strong id="r-conf">—</strong></div>
+        <div class="metric"><span class="muted">Score (−1 … +1)</span><strong id="r-score">—</strong></div>
+        <div class="metric"><span class="muted">Latency</span><strong id="r-lat">—</strong></div>
+      </div>
+
+      <h3>Probability distribution</h3>
+      <div id="r-probs" class="probs"></div>
+
+      <h3>Key factors</h3>
+      <ul id="r-factors" class="chips"></ul>
+
+      <h3>Reasoning</h3>
+      <p id="r-reason" class="reason">—</p>
+      <p id="r-fallback" class="notice" hidden></p>
+
+      <p class="muted small">Stored as record <strong id="r-id">#</strong> ·
+        <span id="r-model"></span> · <a href="/history">view history</a></p>
+    </div>
+  </section>
+</div>
+
+<section class="how reveal">
+  <div class="how-step"><span>01</span><b>Paste text</b><small>News, filings, analyst notes, investor or social posts</small></div>
+  <div class="how-arrow" aria-hidden="true"></div>
+  <div class="how-step"><span>02</span><b>Prompt engineering</b><small>Role, label rules, few-shot examples, JSON schema</small></div>
+  <div class="how-arrow" aria-hidden="true"></div>
+  <div class="how-step"><span>03</span><b>LLM decides</b><small>Groq → Gemini → local Qwen fallback chain</small></div>
+  <div class="how-arrow" aria-hidden="true"></div>
+  <div class="how-step"><span>04</span><b>Stored</b><small>Request &amp; response saved in SQLite</small></div>
+</section>
+
+<section class="card reveal">
+  <div class="card-head">
+    <h2>Recent analyses</h2>
+    <a href="/history" class="btn small glass">All results →</a>
+  </div>
+  <div id="recent" class="table-wrap"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script>SMSA.initAnalyzePage();</script>{% endblock %}

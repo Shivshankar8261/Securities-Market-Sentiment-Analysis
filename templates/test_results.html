@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Test Results{% endblock %}
+{% block content %}
+<section class="page-head reveal">
+  <div class="ph-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/><path d="M7 15h10"/></svg></div>
+  <div><h1>Test Results</h1><p>How accurately each model classifies the 60-text labelled test data set.</p></div>
+</section>
+<section class="card reveal">
+  <h2>Evaluation runs</h2>
+  <p class="muted">Each run sends every text of the test data set (60 texts, 5 text types) through
+    <code>POST /api/analyze</code>, stores the LLM response and compares it with the expected label.
+    Runs are created with <code>python run_tests.py</code>.</p>
+  <div id="runs" class="table-wrap"></div>
+</section>
+
+<div id="run-detail" hidden>
+  <section class="kpis" id="run-kpis"></section>
+  <div class="grid-2">
+    <section class="card reveal">
+      <h2>Confusion matrix</h2>
+      <p class="muted small">Rows = expected label, columns = predicted label.</p>
+      <div id="confusion"></div>
+    </section>
+    <section class="card reveal">
+      <h2>Accuracy by text type</h2>
+      <div id="per-type"></div>
+    </section>
+  </div>
+  <section class="card reveal">
+    <div class="card-head">
+      <h2>Predictions</h2>
+      <label class="small inline"><input type="checkbox" id="only-errors"> show errors only</label>
+    </div>
+    <div id="items" class="table-wrap"></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script>SMSA.initTestResultsPage();</script>{% endblock %}

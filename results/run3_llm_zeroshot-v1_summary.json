@@ -1,0 +1,83 @@
+{
+  "run_id": 3,
+  "engine": "llm",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "prompt_version": "zeroshot-v1",
+  "items": 60,
+  "correct": 58,
+  "accuracy": 0.9666666666666667,
+  "macro_f1": 0.967032967032967,
+  "avg_latency_ms": 2775.366666666667,
+  "wall_time_s": 176.6,
+  "per_class": {
+    "Positive": {
+      "precision": 0.9090909090909091,
+      "recall": 1.0,
+      "f1-score": 0.9523809523809523,
+      "support": 20.0
+    },
+    "Negative": {
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1-score": 0.9743589743589743,
+      "support": 20.0
+    },
+    "Neutral": {
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1-score": 0.9743589743589743,
+      "support": 20.0
+    }
+  },
+  "per_text_type": {
+    "news": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "announcement": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "analyst": {
+      "n": 12,
+      "correct": 11,
+      "accuracy": 0.9166666666666666
+    },
+    "investor": {
+      "n": 12,
+      "correct": 12,
+      "accuracy": 1.0
+    },
+    "social": {
+      "n": 12,
+      "correct": 11,
+      "accuracy": 0.9166666666666666
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "Positive",
+      "Negative",
+      "Neutral"
+    ],
+    "matrix": [
+      [
+        20,
+        0,
+        0
+      ],
+      [
+        1,
+        19,
+        0
+      ],
+      [
+        1,
+        0,
+        19
+      ]
+    ]
+  }
+}

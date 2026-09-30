@@ -1,0 +1,63 @@
+{
+  "run_id": 7,
+  "engine": "gemini",
+  "model": "gemini-3.5-flash",
+  "prompt_version": "fewshot-v2",
+  "items": 7,
+  "correct": 7,
+  "accuracy": 1.0,
+  "macro_f1": 1.0,
+  "avg_latency_ms": 10877.857142857143,
+  "wall_time_s": 123.3,
+  "per_class": {
+    "Positive": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "Negative": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "Neutral": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    }
+  },
+  "per_text_type": {
+    "news": {
+      "n": 7,
+      "correct": 7,
+      "accuracy": 1.0
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "Positive",
+      "Negative",
+      "Neutral"
+    ],
+    "matrix": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        4,
+        0
+      ],
+      [
+        0,
+        0,
+        2
+      ]
+    ]
+  }
+}

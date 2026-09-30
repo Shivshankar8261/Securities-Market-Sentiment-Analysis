@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-head reveal">
+  <div class="ph-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg></div>
+  <div><h1>Dashboard</h1><p>Live statistics computed with SQL over all stored market-sentiment results.</p></div>
+</section>
+<section class="kpis reveal" id="kpis"></section>
+
+<div class="grid-2">
+  <section class="card reveal">
+    <h2>Sentiment distribution</h2>
+    <div id="dist"></div>
+  </section>
+  <section class="card reveal">
+    <h2>Sentiment by text type</h2>
+    <div id="by-type"></div>
+  </section>
+</div>
+
+<section class="card reveal">
+  <h2>Companies</h2>
+  <p class="muted small">Average score = mean of P(Positive) − P(Negative) over all texts about the company. Name variants such as “Ltd” / “Limited” are merged; texts without an identified company (FinBERT does not detect companies) are not listed.</p>
+  <div id="by-company" class="table-wrap"></div>
+</section>
+{% endblock %}
+{% block scripts %}<script>SMSA.initDashboardPage();</script>{% endblock %}
