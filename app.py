@@ -233,6 +233,10 @@ def api_test_run(run_id):
 
 @app.get("/api/health")
 def api_health():
+    # On serverless hosting (Vercel) the start-up thread never runs, so verify the API keys
+    # on the first health request instead (free "list models" calls, once per instance).
+    if "unchecked" in engine.cloud.values():
+        engine.check_cloud_engines()
     return jsonify({"status": "ok", "models": engine.status, "errors": engine.errors,
                     "groq": engine.cloud["groq"],
                     "gemini": engine.cloud["gemini"],

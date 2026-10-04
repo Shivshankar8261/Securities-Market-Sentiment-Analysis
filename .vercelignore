@@ -1,0 +1,9 @@
+# Not needed by the deployed web application
+.env
+__pycache__/
+*.pyc
+.DS_Store
+results/
+report/
+.env.local
+.vercel/

@@ -221,7 +221,8 @@ class SentimentEngine:
         self.llm = None
         self.tokenizer = None
         self.finbert = None
-        self.status = {"llm": "not loaded", "finbert": "not loaded"}
+        local = "not loaded" if config.LOCAL_MODELS_AVAILABLE else "not installed"
+        self.status = {"llm": local, "finbert": local}
         # Cloud engines: "unchecked" | "ready" | "no API key" | "unavailable: <reason>"
         self.cloud = {
             "groq": "unchecked" if config.GROQ_ENABLED else "no API key",
@@ -305,6 +306,8 @@ class SentimentEngine:
         next(iter(client.models.list(config={"page_size": 1})))
 
     def load_all(self):
+        if not config.LOCAL_MODELS_AVAILABLE:
+            return
         for loader in (self.load_llm, self.load_finbert):
             try:
                 loader()
@@ -350,7 +353,9 @@ class SentimentEngine:
         ]
 
     def _engine_problem(self, name):
-        """Returns why a cloud engine cannot be used, or None if it may be tried."""
+        """Returns why an engine cannot be used, or None if it may be tried."""
+        if name in ("llm", "finbert") and not config.LOCAL_MODELS_AVAILABLE:
+            return "local models are not installed on this server"
         state = self.cloud.get(name)
         if state is None or state in ("ready", "unchecked"):
             return None

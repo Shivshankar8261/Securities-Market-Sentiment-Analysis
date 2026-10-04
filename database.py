@@ -7,6 +7,7 @@ safe to use from Flask's multi-threaded development server.
 import csv
 import json
 import os
+import shutil
 import sqlite3
 from contextlib import contextmanager
 
@@ -32,6 +33,10 @@ def init_db(db_path=None):
     """Create all tables / indexes / views (idempotent) and load the test data set."""
     path = db_path or config.DATABASE_PATH
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    # Serverless: start the writable copy from the database bundled with the code.
+    if (not os.path.exists(path) and path != config.BUNDLED_DATABASE_PATH
+            and os.path.exists(config.BUNDLED_DATABASE_PATH)):
+        shutil.copyfile(config.BUNDLED_DATABASE_PATH, path)
     with open(config.SCHEMA_PATH, encoding="utf-8") as fh:
         schema = fh.read()
     _migrate(path)

@@ -8,3 +8,12 @@ __pycache__/
 # OS / editor / Office temporary files
 .DS_Store
 ~$*
+.vercel
+.env*
+
+# Vercel CLI local token
+.env.local
+!.env.example
+
+# Report is submitted separately, not part of the code repository
+report/

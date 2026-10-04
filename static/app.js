@@ -165,7 +165,7 @@ const SMSA = (() => {
         return "✗";
       };
       pill.textContent = Object.keys(ENGINE_NAMES)
-        .filter((e) => st[e] !== "no API key")
+        .filter((e) => st[e] !== "no API key" && st[e] !== "not installed")
         .map((e) => `${ENGINE_NAMES[e]} ${mark(e)}`).join(" · ");
       pill.title = Object.entries(st).map(([e, v]) => `${ENGINE_NAMES[e]}: ${v}`).join("\n");
       const anyReady = ["groq", "gemini", "llm"].some((e) => st[e] === "ready");

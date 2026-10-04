@@ -7,6 +7,9 @@ pre-trained LLM with an engineered prompt, returns the market sentiment
 (Positive / Negative / Neutral) towards the company and stores every response in
 an SQLite database.
 
+**Live demo:** https://securities-market-sentiment-analysi.vercel.app
+(hosted on Vercel; uses the Groq and Gemini cloud engines)
+
 ## Folder structure
 ```
 Assignment-2-Group-3/
@@ -15,7 +18,9 @@ Assignment-2-Group-3/
 ├── database.py             Data-access layer (SQLite)
 ├── config.py               Configuration (models, paths, defaults)
 ├── run_tests.py            Runs the labelled test data set through POST /api/analyze
-├── requirements.txt
+├── requirements.txt        Web app + cloud LLM engines (used by the Vercel deployment)
+├── requirements-local.txt  + local models (Qwen, FinBERT) and evaluation tools
+├── vercel.json             Vercel deployment settings (Flask)
 ├── .env.example            Template for the API keys (copy to .env)
 ├── templates/              Front end (HTML – Jinja2)
 ├── static/                 Front end (CSS + JavaScript)
@@ -25,13 +30,12 @@ Assignment-2-Group-3/
 ├── database/
 │   ├── schema.sql          Database structure (DDL)
 │   └── smsa.db             SQLite database with all stored results and test runs
-├── results/                Predictions, summaries and confusion matrices of each test run
-└── report/                 Assignment report (.docx / .pdf)
+└── results/                Predictions, summaries and confusion matrices of each test run
 ```
 
 ## Setup and run
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-local.txt   # full setup incl. local models
 python app.py                 # open http://127.0.0.1:5050
 ```
 On first start the models are downloaded from Hugging Face
@@ -82,4 +86,19 @@ Example:
 ```bash
 curl -X POST http://127.0.0.1:5050/api/analyze -H "Content-Type: application/json" \
   -d '{"text": "The M/s XYZ Limited reported strong quarterly earnings, with revenue increasing significantly. Analysts expressed optimism about future growth.", "text_type": "news"}'
+```
+
+## Deployment (Vercel)
+The app is deployed on Vercel as a Flask serverless function (`vercel.json`, Python 3.12).
+- Only `requirements.txt` is installed there, so the hosted app uses the **Groq** and **Gemini**
+  engines; the local Qwen / FinBERT models (PyTorch, ~3 GB) exceed serverless size limits and are
+  shown as "not installed".
+- The API keys are stored as encrypted Vercel environment variables (`GROQ_API_KEY`, `GEMINI_API_KEY`).
+- Vercel's file system is read-only except `/tmp`. The hosted app copies the bundled
+  `database/smsa.db` to `/tmp` on start-up, so all stored results are visible, but analyses made on
+  the hosted site are temporary (lost when the server instance restarts). Run the app locally to keep
+  every result permanently.
+
+```bash
+vercel deploy --prod
 ```

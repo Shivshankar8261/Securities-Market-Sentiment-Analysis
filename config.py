@@ -2,6 +2,7 @@
 Central configuration for the Securities Market Sentiment Analysis (SMSA) system.
 All values can be overridden through environment variables.
 """
+import importlib.util
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,8 +28,12 @@ HOST = os.environ.get("SMSA_HOST", "127.0.0.1")
 PORT = int(os.environ.get("SMSA_PORT", "5050"))
 
 # ---------------------------------------------------------------- database
+# On Vercel (serverless) the project folder is read-only; only /tmp is writable, and /tmp is
+# wiped whenever a new server instance starts. The bundled database is copied there as a seed.
+ON_VERCEL = bool(os.environ.get("VERCEL"))
+BUNDLED_DATABASE_PATH = os.path.join(BASE_DIR, "database", "smsa.db")
 DATABASE_PATH = os.environ.get(
-    "SMSA_DB_PATH", os.path.join(BASE_DIR, "database", "smsa.db")
+    "SMSA_DB_PATH", "/tmp/smsa.db" if ON_VERCEL else BUNDLED_DATABASE_PATH
 )
 SCHEMA_PATH = os.path.join(BASE_DIR, "database", "schema.sql")
 
@@ -63,6 +68,10 @@ MIN_INPUT_CHARS = 10
 # Load the models in a background thread when the server starts, so the
 # first user request does not wait for model loading.
 PRELOAD_MODELS = os.environ.get("SMSA_PRELOAD", "1") == "1"
+
+# The local engines (Qwen, FinBERT) need PyTorch + Transformers (requirements-local.txt).
+# They are not installed on the Vercel deployment, which uses the cloud engines only.
+LOCAL_MODELS_AVAILABLE = all(importlib.util.find_spec(m) is not None for m in ("torch", "transformers"))
 
 # ---------------------------------------------------------------- domain
 SENTIMENT_LABELS = ["Positive", "Negative", "Neutral"]
